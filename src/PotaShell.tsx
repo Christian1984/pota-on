@@ -38,7 +38,7 @@ function PotaShell() {
             <AppShell.Header>
                 <Group h="100%" px="md">
                     <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-                    <Title order={2}>next POTA</Title>
+                    <Title order={2}>pota on</Title>
                 </Group>
             </AppShell.Header>
 
