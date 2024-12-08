@@ -17,11 +17,8 @@ const ParksView = ({
                 <Tabs.Tab value="map">Map</Tabs.Tab>
                 <Tabs.Tab value="table">Table</Tabs.Tab>
             </Tabs.List>
-            <Tabs.Panel
-                value="map"
-                pt="xs"
-                style={{ flexGrow: "1", display: "flex", flexDirection: "column", padding: 0 }}>
-                <ParksMap call={call} center={mapCenter} parks={parks} />
+            <Tabs.Panel value="map" style={{ flexGrow: "1", display: "flex", flexDirection: "column" }}>
+                <ParksMap call={call} qth={mapCenter} parks={parks} />
             </Tabs.Panel>
             <Tabs.Panel value="table" pt="xs">
                 <ParksTable call={call} parks={parks} />

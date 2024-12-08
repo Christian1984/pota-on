@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { AppShell, Burger, Group, Title } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { HamInput } from "./components/HamInput";
-import { ParksTable } from "./components/ParksTabel";
 import { ParksView } from "./components/ParksView";
 
 function PotaShell() {
@@ -11,13 +10,11 @@ function PotaShell() {
     const [call, setCall] = useState("DN9CVR");
     const [lat, setLat] = useState(50.819649);
     const [long, setLong] = useState(6.97578);
-    const [radiusDeg, setRadiusDeg] = useState(0.5);
+    const [radiusDeg, setRadiusDeg] = useState(0.2);
 
-    const [mapCenter, setMapLatLong] = useState({ lat: lat, long: long });
+    const [qth, setQth] = useState({ lat: lat, long: long });
 
     const [parks, setParks] = useState<Park[]>([]);
-
-    useEffect(() => console.log(lat), [lat]);
 
     const calculateDistanceKm = (
         point1: { latitude: number; longitude: number },
@@ -38,11 +35,13 @@ function PotaShell() {
     };
 
     const findParks = async () => {
+        setQth({ lat: lat, long: long });
+
         const resp = await fetch(
             "https://api.pota.app/park/grids/" +
                 (lat - radiusDeg) +
                 "/" +
-                (long + radiusDeg) +
+                (long - radiusDeg) +
                 "/" +
                 (lat + radiusDeg) +
                 "/" +
@@ -87,7 +86,7 @@ function PotaShell() {
             <AppShell.Header>
                 <Group h="100%" px="md">
                     <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-                    <Title order={2}>pota on</Title>
+                    <Title order={3}>pota on (by DN9CVR)</Title>
                 </Group>
             </AppShell.Header>
 
@@ -104,7 +103,7 @@ function PotaShell() {
             </AppShell.Navbar>
 
             <AppShell.Main style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-                <ParksView call={call} parks={parks} mapCenter={mapCenter} />
+                <ParksView call={call} parks={parks} mapCenter={qth} />
             </AppShell.Main>
         </AppShell>
     );
