@@ -13,6 +13,8 @@ function PotaShell() {
     const [long, setLong] = useState(6.97578);
     const [radiusDeg, setRadiusDeg] = useState(0.5);
 
+    const [mapCenter, setMapLatLong] = useState({ lat: lat, long: long });
+
     const [parks, setParks] = useState<Park[]>([]);
 
     useEffect(() => console.log(lat), [lat]);
@@ -80,6 +82,7 @@ function PotaShell() {
                 breakpoint: "sm",
                 collapsed: { mobile: !opened },
             }}
+            styles={{ main: { height: "100%" } }}
             padding={0}>
             <AppShell.Header>
                 <Group h="100%" px="md">
@@ -100,8 +103,8 @@ function PotaShell() {
                 />
             </AppShell.Navbar>
 
-            <AppShell.Main>
-                <ParksView call={call} parks={parks} />
+            <AppShell.Main style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+                <ParksView call={call} parks={parks} mapCenter={mapCenter} />
             </AppShell.Main>
         </AppShell>
     );
