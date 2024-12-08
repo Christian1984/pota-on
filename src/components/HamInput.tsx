@@ -72,7 +72,10 @@ const HamInput = ({
             /> */}
 
             <Group justify="flex-end" mt="md">
-                <Button type="button" onClick={onFindParksClicked}>
+                <Button
+                    type="button"
+                    onClick={onFindParksClicked}
+                    disabled={isNaN(lat) || isNaN(long) || call.length < 1}>
                     Find Parks
                 </Button>
             </Group>

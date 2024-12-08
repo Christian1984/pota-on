@@ -1913,6 +1913,26 @@ __metadata:
   languageName: node
   linkType: hard
 
+"pota-on@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "pota-on@workspace:."
+  dependencies:
+    "@mantine/core": "npm:7.14.3"
+    "@mantine/form": "npm:^7.14.3"
+    "@mantine/hooks": "npm:7.14.3"
+    "@types/react": "npm:^18.3.12"
+    "@types/react-dom": "npm:^18.3.1"
+    "@vitejs/plugin-react": "npm:^4.3.4"
+    postcss: "npm:^8.4.49"
+    postcss-preset-mantine: "npm:1.17.0"
+    postcss-simple-vars: "npm:^7.0.1"
+    react: "npm:^18.3.1"
+    react-dom: "npm:^18.3.1"
+    typescript: "npm:^5.7.2"
+    vite: "npm:^6.0.1"
+  languageName: unknown
+  linkType: soft
+
 "proc-log@npm:^3.0.0":
   version: 3.0.0
   resolution: "proc-log@npm:3.0.0"
@@ -2466,26 +2486,6 @@ __metadata:
   checksum: 10c0/41a5bdd214df2f6c3ecf8622745e4a366c4adced864bc3c833739791aeeeb1838119af7daed4ba36428114b5c67dcda034a79c882e97e43c03e66a4dd7389942
   languageName: node
   linkType: hard
-
-"vite-min-template@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "vite-min-template@workspace:."
-  dependencies:
-    "@mantine/core": "npm:7.14.3"
-    "@mantine/form": "npm:^7.14.3"
-    "@mantine/hooks": "npm:7.14.3"
-    "@types/react": "npm:^18.3.12"
-    "@types/react-dom": "npm:^18.3.1"
-    "@vitejs/plugin-react": "npm:^4.3.4"
-    postcss: "npm:^8.4.49"
-    postcss-preset-mantine: "npm:1.17.0"
-    postcss-simple-vars: "npm:^7.0.1"
-    react: "npm:^18.3.1"
-    react-dom: "npm:^18.3.1"
-    typescript: "npm:^5.7.2"
-    vite: "npm:^6.0.1"
-  languageName: unknown
-  linkType: soft
 
 "vite@npm:^6.0.1":
   version: 6.0.1
