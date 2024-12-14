@@ -2,13 +2,28 @@ import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
-const ParksMap = ({ call, qth, parks }: { call: string; qth: { lat: number; long: number }; parks: Park[] }) => {
+const ParksMap = ({
+    call,
+    qth,
+    parks,
+    activationDetails,
+}: {
+    call: string;
+    qth: { lat: number; long: number };
+    parks: Park[];
+    activationDetails: ActivationDetails;
+}) => {
     const mapRef = useRef(null);
     const map = useRef<L.Map | null>(null);
 
     const qthMarkerRef = useRef<L.Marker | null>(null);
-    const parkMarkerRefs = useRef<L.CircleMarker[] | null>(null);
-    const lineRefs = useRef<L.Polyline[] | null>(null);
+    const parkMarkerRefs = useRef<{ reference: string; marker: L.CircleMarker }[] | null>([]);
+    const lineRefs = useRef<{ reference: string; line: L.Polyline }[]>([]);
+
+    const inactiveColor = "gray";
+    const newParkColor = "red";
+    const alreadyActivatedByMeColor = "green";
+    const activeParkColor = "yellow";
 
     useEffect(() => {
         if (map.current) {
@@ -27,17 +42,17 @@ const ParksMap = ({ call, qth, parks }: { call: string; qth: { lat: number; long
             const markers = parks.map((park) => {
                 const parkMarker = L.circleMarker([park.coordinates.lat, park.coordinates.long], {
                     radius: 10,
-                    color: "red",
+                    color: inactiveColor,
                 });
                 parkMarker.addTo(map.current!);
 
-                return parkMarker;
+                return { reference: park.reference, marker: parkMarker };
             });
 
             parkMarkerRefs.current = markers;
 
             return () => {
-                parkMarkerRefs.current?.map((marker) => marker.remove());
+                parkMarkerRefs.current?.map((marker) => marker.marker.remove());
             };
         }
     }, [parks]);
@@ -50,19 +65,37 @@ const ParksMap = ({ call, qth, parks }: { call: string; qth: { lat: number; long
                         [qth.lat, qth.long],
                         [park.coordinates.lat, park.coordinates.long],
                     ],
-                    { color: "red", opacity: 0.25 }
+                    { color: inactiveColor, opacity: 0.25 }
                 );
                 line.addTo(map.current!);
 
-                return line;
+                return { reference: park.reference, line: line };
             });
 
             lineRefs.current = lines;
             return () => {
-                lineRefs.current?.map((line) => line.remove());
+                lineRefs.current?.map((line) => line.line.remove());
             };
         }
     }, [qth, parks]);
+
+    useEffect(() => {
+        Object.keys(activationDetails).map((key) => {
+            const details = activationDetails[key];
+            const marker = parkMarkerRefs.current?.find((marker) => marker.reference == key);
+            const line = lineRefs.current?.find((line) => line.reference == key);
+            if (details.activations == 0) {
+                marker?.marker.setStyle({ color: newParkColor });
+                line?.line.setStyle({ color: newParkColor });
+            } else if (details.activatedByOperator) {
+                marker?.marker.setStyle({ color: alreadyActivatedByMeColor });
+                line?.line.setStyle({ color: alreadyActivatedByMeColor });
+            } else if (details.active) {
+                marker?.marker.setStyle({ color: activeParkColor });
+                line?.line.setStyle({ color: activeParkColor });
+            }
+        });
+    }, [activationDetails]);
 
     useEffect(() => {
         if (map.current == null) {

@@ -6,7 +6,7 @@ import { ParksView } from "./components/ParksView";
 import { throttle } from "./Throttle";
 
 function PotaShell() {
-    const throttleMs = 500;
+    const throttleMs = 1000;
     const [opened, { toggle }] = useDisclosure();
 
     const [call, setCall] = useState("DN9CVR");
@@ -17,6 +17,61 @@ function PotaShell() {
     const [qth, setQth] = useState({ lat: lat, long: long });
 
     const [parks, setParks] = useState<Park[]>([]);
+    const [activationDetails, setActivationDetails] = useState<ActivationDetails>({});
+
+    useEffect(() => {
+        parks.map(async (park) => {
+            try {
+                await throttle(Math.random() * throttleMs + throttleMs);
+
+                const resp = await fetch("https://api.pota.app/park/" + park.reference + "?count=all");
+                const parkActivationResp = (await resp.json()) as ParkDetailsResponse;
+                // console.log(park.name, parkActivationResp);
+                const newDetails: ParkActivationDetails = {
+                    active: parkActivationResp.active == 1,
+                    lastRefresh: new Date(),
+                };
+
+                setActivationDetails((details) => ({
+                    ...details,
+                    [park.reference]: { ...details[park.reference], ...newDetails },
+                }));
+            } catch (e) {
+                console.warn("could not update activation details for park [", park.name, "], reason:", e);
+            }
+        });
+    }, [parks]);
+
+    useEffect(() => {
+        parks.map(async (park) => {
+            try {
+                await throttle(Math.random() * throttleMs + throttleMs);
+
+                const resp = await fetch("https://api.pota.app/park/activations/" + park.reference + "?count=all");
+                const parkActivationResp = (await resp.json()) as ParkActivationResponse;
+                console.log(park.name, parkActivationResp);
+                const newDetails: ParkActivationDetails = {
+                    activations: parkActivationResp.filter((activation) => activation.totalQSOs >= 10).length,
+                    activatedByOperator:
+                        parkActivationResp.filter(
+                            (activation) => activation.activeCallSign === call && activation.totalQSOs >= 10
+                        ).length > 0,
+                    lastRefresh: new Date(),
+                };
+
+                setActivationDetails((details) => ({
+                    ...details,
+                    [park.reference]: { ...details[park.reference], ...newDetails },
+                }));
+            } catch (e) {
+                console.warn("could not update activation details for park [", park.name, "], reason:", e);
+            }
+        });
+    }, [parks]);
+
+    useEffect(() => {
+        console.log(activationDetails);
+    }, [activationDetails]);
 
     const calculateDistanceKm = (
         point1: { latitude: number; longitude: number },
@@ -36,33 +91,6 @@ function PotaShell() {
         return rEarth * c;
     };
 
-    const refreshParkDetails = async (parks: Park[]) => {
-        const parksWithDetailsPromise = await parks.map(async (park) => {
-            try {
-                await throttle(throttleMs);
-
-                const resp = await fetch("https://api.pota.app/park/activations/" + park.reference + "?count=all");
-                const json = await resp.json();
-                console.log(park.name, json);
-                const details: ParkDetails = {
-                    active: true,
-                    activations: 0,
-                    activatedByOperator: false,
-                    lastRefresh: new Date(),
-                };
-
-                // TODO: update state here instead of returning...
-                return { ...park, details: details };
-            } catch (e) {
-                console.warn(e);
-            }
-
-            return park;
-        });
-
-        return Promise.all(parksWithDetailsPromise);
-    };
-
     const findParks = async () => {
         setQth({ lat: lat, long: long });
 
@@ -77,8 +105,8 @@ function PotaShell() {
                 (long + radiusDeg) +
                 "/0"
         );
-        const json = await resp.json();
-        const parksData: Park[] = json.features
+        const parksResponse = (await resp.json()) as ParksResponse;
+        const parksData: Park[] = parksResponse.features
             .map(
                 (feat: any) =>
                     ({
@@ -94,12 +122,10 @@ function PotaShell() {
                         name: feat.properties.name,
                     } as Park)
             )
-            .sort((a: Park, b: Park) => a.distance - b.distance)
-            .slice(0, 10);
+            .sort((a: Park, b: Park) => a.distance - b.distance);
+        // .slice(0, 10);
 
         setParks(parksData);
-        const parksDataWithDetails = await refreshParkDetails(parksData);
-        setParks(parksDataWithDetails);
     };
 
     return (
@@ -132,7 +158,7 @@ function PotaShell() {
             </AppShell.Navbar>
 
             <AppShell.Main style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-                <ParksView call={call} parks={parks} mapCenter={qth} />
+                <ParksView call={call} parks={parks} activationDetails={activationDetails} mapCenter={qth} />
             </AppShell.Main>
         </AppShell>
     );

@@ -1,9 +1,17 @@
-import { Table } from "@mantine/core";
+import { Loader, Table } from "@mantine/core";
 
-const ParksTable = ({ call, parks }: { call: string; parks: Park[] }) => {
+export const ParksTable = ({
+    call,
+    parks,
+    activationDetails,
+}: {
+    call: string;
+    parks: Park[];
+    activationDetails: ActivationDetails;
+}) => {
     const rows = parks.map((park) => {
-        const detailsPending = park.details == null;
-        const detailsPendingContent = "...";
+        const details = activationDetails[park.reference];
+        const detailsPendingContent = <Loader size={16} />;
 
         return (
             <Table.Tr key={park.name}>
@@ -12,13 +20,17 @@ const ParksTable = ({ call, parks }: { call: string; parks: Park[] }) => {
                         {park.reference}
                     </a>
                 </Table.Td>
-                <Table.Td>{detailsPending ? detailsPendingContent : park.details?.active ? "✅" : "⛔"}</Table.Td>
+                <Table.Td>{details?.active == null ? detailsPendingContent : details.active ? "✅" : "⛔"}</Table.Td>
                 <Table.Td>{park.name}</Table.Td>
                 <Table.Td>{park.distance.toFixed(2)} km</Table.Td>
                 <Table.Td>
-                    {detailsPending ? detailsPendingContent : park.details?.activatedByOperator ? "✅" : ""}
+                    {details?.activatedByOperator == null
+                        ? detailsPendingContent
+                        : details.activatedByOperator
+                        ? "✅"
+                        : ""}
                 </Table.Td>
-                <Table.Td>{detailsPending ? detailsPendingContent : park.details?.activations}</Table.Td>
+                <Table.Td>{details?.activations == null ? detailsPendingContent : details.activations}</Table.Td>
             </Table.Tr>
         );
     });
@@ -39,5 +51,3 @@ const ParksTable = ({ call, parks }: { call: string; parks: Park[] }) => {
         </Table>
     );
 };
-
-export { ParksTable };
