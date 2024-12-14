@@ -1,5 +1,4 @@
-import { Button, Checkbox, Divider, Group, TextInput, Title } from "@mantine/core";
-import { useForm } from "@mantine/form";
+import { Button, Divider, Group, TextInput } from "@mantine/core";
 
 const HamInput = ({
     call,
@@ -18,20 +17,20 @@ const HamInput = ({
     setLong: React.Dispatch<React.SetStateAction<number>>;
     onFindParksClicked: () => void;
 }) => {
-    const form = useForm({
-        mode: "controlled",
-        initialValues: {
-            email: "",
-            termsOfService: false,
-        },
+    // const form = useForm({
+    //     mode: "controlled",
+    //     initialValues: {
+    //         email: "",
+    //         termsOfService: false,
+    //     },
 
-        validate: {
-            email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
-        },
-    });
+    //     validate: {
+    //         email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
+    //     },
+    // });
 
     return (
-        <form onSubmit={form.onSubmit((values) => console.log(values))}>
+        <>
             {/* <Title order={2}> Operator Info</Title> */}
             <Divider my="xs" label="Operator Info" labelPosition="left" />
 
@@ -79,7 +78,7 @@ const HamInput = ({
                     Find Parks
                 </Button>
             </Group>
-        </form>
+        </>
     );
 };
 export { HamInput };
