@@ -1,7 +1,11 @@
-type Park = {
+type ParkDetails = {
     active: Boolean;
-    activatedByOperator: Boolean;
     activations: number;
+    activatedByOperator: Boolean;
+    lastRefresh?: Date;
+};
+
+type Park = {
     coordinates: {
         lat: number;
         long: number;
@@ -9,4 +13,5 @@ type Park = {
     distance: number;
     reference: string;
     name: string;
+    details?: ParkDetails;
 };

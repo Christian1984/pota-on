@@ -3,8 +3,10 @@ import { AppShell, Burger, Group, Title } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import { HamInput } from "./components/HamInput";
 import { ParksView } from "./components/ParksView";
+import { throttle } from "./Throttle";
 
 function PotaShell() {
+    const throttleMs = 500;
     const [opened, { toggle }] = useDisclosure();
 
     const [call, setCall] = useState("DN9CVR");
@@ -34,6 +36,33 @@ function PotaShell() {
         return rEarth * c;
     };
 
+    const refreshParkDetails = async (parks: Park[]) => {
+        const parksWithDetailsPromise = await parks.map(async (park) => {
+            try {
+                await throttle(throttleMs);
+
+                const resp = await fetch("https://api.pota.app/park/activations/" + park.reference + "?count=all");
+                const json = await resp.json();
+                console.log(park.name, json);
+                const details: ParkDetails = {
+                    active: true,
+                    activations: 0,
+                    activatedByOperator: false,
+                    lastRefresh: new Date(),
+                };
+
+                // TODO: update state here instead of returning...
+                return { ...park, details: details };
+            } catch (e) {
+                console.warn(e);
+            }
+
+            return park;
+        });
+
+        return Promise.all(parksWithDetailsPromise);
+    };
+
     const findParks = async () => {
         setQth({ lat: lat, long: long });
 
@@ -53,9 +82,6 @@ function PotaShell() {
             .map(
                 (feat: any) =>
                     ({
-                        active: true,
-                        activatedByOperator: false,
-                        activations: 0,
                         coordinates: {
                             long: feat.geometry.coordinates[0],
                             lat: feat.geometry.coordinates[1],
@@ -68,9 +94,12 @@ function PotaShell() {
                         name: feat.properties.name,
                     } as Park)
             )
-            .sort((a: Park, b: Park) => a.distance - b.distance);
+            .sort((a: Park, b: Park) => a.distance - b.distance)
+            .slice(0, 10);
 
         setParks(parksData);
+        const parksDataWithDetails = await refreshParkDetails(parksData);
+        setParks(parksDataWithDetails);
     };
 
     return (
