@@ -1,37 +1,20 @@
-import { Button, Divider, Group, TextInput } from "@mantine/core";
+import { Button, Divider, Group, Loader, TextInput } from "@mantine/core";
+import { useAppStore } from "../store/AppState";
+import { useShallow } from "zustand/shallow";
+import { useParkQuery } from "../clients/ParksClient";
 
-const HamInput = ({
-    call,
-    setCall,
-    lat,
-    setLat,
-    long,
-    setLong,
-    onFindParksClicked,
-}: {
-    call: string;
-    setCall: React.Dispatch<React.SetStateAction<string>>;
-    lat: number;
-    setLat: React.Dispatch<React.SetStateAction<number>>;
-    long: number;
-    setLong: React.Dispatch<React.SetStateAction<number>>;
-    onFindParksClicked: () => void;
-}) => {
-    // const form = useForm({
-    //     mode: "controlled",
-    //     initialValues: {
-    //         email: "",
-    //         termsOfService: false,
-    //     },
+const HamInput = () => {
+    const [call, setCall] = useAppStore(useShallow((state) => [state.call, state.setCall]));
+    const [lat, setLat] = useAppStore(useShallow((state) => [state.lat, state.setLat]));
+    const [long, setLong] = useAppStore(useShallow((state) => [state.long, state.setLong]));
+    const [radius, setRadius] = useAppStore(useShallow((state) => [state.radius, state.setRadius]));
 
-    //     validate: {
-    //         email: (value) => (/^\S+@\S+$/.test(value) ? null : "Invalid email"),
-    //     },
-    // });
+    const setQth = useAppStore((state) => state.setQth);
+
+    const { isFetching: isParksFetching, refetch: fetchParks } = useParkQuery(lat, long, radius);
 
     return (
         <>
-            {/* <Title order={2}> Operator Info</Title> */}
             <Divider my="xs" label="Operator Info" labelPosition="left" />
 
             <TextInput
@@ -39,7 +22,9 @@ const HamInput = ({
                 type="text"
                 placeholder="DN9CVR"
                 value={call}
-                onChange={(e) => setCall(e.target.value)}
+                onChange={(e) => {
+                    setCall(e.target.value);
+                }}
             />
 
             <Divider my="xs" label="Location" labelPosition="left" />
@@ -73,9 +58,13 @@ const HamInput = ({
             <Group justify="flex-end" mt="md">
                 <Button
                     type="button"
-                    onClick={onFindParksClicked}
-                    disabled={isNaN(lat) || isNaN(long) || call.length < 1}>
-                    Find Parks
+                    onClick={() => {
+                        setQth({ lat: lat, long: long });
+                        fetchParks();
+                    }}
+                    disabled={isNaN(lat) || isNaN(long) || call.length < 1 || isParksFetching}>
+                    {!isParksFetching && <>Find Parks</>}
+                    {isParksFetching && <Loader size={16} type="dots" />}
                 </Button>
             </Group>
         </>

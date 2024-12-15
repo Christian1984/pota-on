@@ -6,6 +6,7 @@ import { ParksView } from "./components/ParksView";
 import { throttle } from "./Throttle";
 import { useQueryClient } from "@tanstack/react-query";
 import { useParkQuery } from "./clients/ParksClient";
+import { useAppStore } from "./store/AppState";
 
 function PotaShell() {
     const throttleMs = 1000;
@@ -99,15 +100,7 @@ function PotaShell() {
             </AppShell.Header>
 
             <AppShell.Navbar p="md" withBorder={false}>
-                <HamInput
-                    call={call}
-                    setCall={setCall}
-                    lat={lat}
-                    setLat={setLat}
-                    long={long}
-                    setLong={setLong}
-                    onFindParksClicked={findParks}
-                />
+                <HamInput />
             </AppShell.Navbar>
 
             <AppShell.Main style={{ height: "100%", display: "flex", flexDirection: "column" }}>
