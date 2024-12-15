@@ -1,20 +1,23 @@
 import { Loader, Table } from "@mantine/core";
+import { useParkQuery } from "../clients/ParksClient";
+import { useAppStore } from "../store/AppState";
 
-export const ParksTable = ({
-    call,
-    parks,
-    activationDetails,
-}: {
-    call: string;
-    parks: Park[];
-    activationDetails: ActivationDetails;
-}) => {
+export const ParksTable = () => {
+    const { data: parks, isLoading: isParksLoading } = useParkQuery();
+
+    const call = useAppStore((state) => state.call);
+    const activationDetails = useAppStore((state) => state.activationDetails);
+
     const rows = parks.map((park) => {
         const details = activationDetails[park.reference];
         const detailsPendingContent = <Loader size={16} />;
 
+        // if (park.reference == "DE-0048") {
+        //     console.log(details);
+        // }
+
         return (
-            <Table.Tr key={park.name}>
+            <Table.Tr key={park.reference}>
                 <Table.Td>
                     <a href={`https://pota.app/#/park/${park.reference}`} target="_blank">
                         {park.reference}
@@ -34,6 +37,7 @@ export const ParksTable = ({
             </Table.Tr>
         );
     });
+
     return (
         // <Table stickyHeader stickyHeaderOffset={45}>
         <Table>

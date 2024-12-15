@@ -11,7 +11,7 @@ const HamInput = () => {
 
     const setQth = useAppStore((state) => state.setQth);
 
-    const { isFetching: isParksFetching, refetch: fetchParks } = useParkQuery(lat, long, radius);
+    const { isFetching: isParksFetching, refetch: fetchParks } = useParkQuery();
 
     return (
         <>

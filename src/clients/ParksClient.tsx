@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { throttle } from "../Throttle";
+import { useAppStore } from "../store/AppState";
 
 const calculateDistanceKm = (
     point1: { latitude: number; longitude: number },
@@ -19,7 +20,11 @@ const calculateDistanceKm = (
     return rEarth * c;
 };
 
-export const useParkQuery = (lat: number, long: number, radiusDeg: number) => {
+export const useParkQuery = () => {
+    const lat = useAppStore((state) => state.lat);
+    const long = useAppStore((state) => state.long);
+    const radiusDeg = useAppStore((state) => state.radius);
+
     const query = useQuery({
         queryKey: [lat, long, radiusDeg],
         enabled: false,

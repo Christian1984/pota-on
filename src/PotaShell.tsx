@@ -4,24 +4,21 @@ import { useDisclosure } from "@mantine/hooks";
 import { HamInput } from "./components/HamInput";
 import { ParksView } from "./components/ParksView";
 import { throttle } from "./Throttle";
-import { useQueryClient } from "@tanstack/react-query";
 import { useParkQuery } from "./clients/ParksClient";
 import { useAppStore } from "./store/AppState";
+import { useShallow } from "zustand/shallow";
 
 function PotaShell() {
-    const throttleMs = 1000;
     const [opened, { toggle }] = useDisclosure();
 
-    const [call, setCall] = useState("DN9CVR");
-    const [lat, setLat] = useState(50.819649);
-    const [long, setLong] = useState(6.97578);
-    const [radiusDeg, setRadiusDeg] = useState(0.2);
+    const call = useAppStore((state) => state.call);
+    const lat = useAppStore((state) => state.lat);
+    const long = useAppStore((state) => state.long);
+    const [activationDetails, setActivationDetails] = useAppStore(
+        useShallow((state) => [state.activationDetails, state.setActivationDetails])
+    );
 
-    const [qth, setQth] = useState({ lat: lat, long: long });
-
-    const [activationDetails, setActivationDetails] = useState<ActivationDetails>({});
-
-    const { data: parks, isLoading: isParksLoading, refetch: fetchParks } = useParkQuery(lat, long, radiusDeg);
+    const { data: parks, isLoading: isParksLoading, refetch: fetchParks } = useParkQuery();
 
     useEffect(() => {
         parks.map(async (park) => {
@@ -36,10 +33,7 @@ function PotaShell() {
                     lastRefresh: new Date(),
                 };
 
-                setActivationDetails((details) => ({
-                    ...details,
-                    [park.reference]: { ...details[park.reference], ...newDetails },
-                }));
+                setActivationDetails(park.reference, newDetails);
             } catch (e) {
                 console.warn("could not update activation details for park [", park.name, "], reason:", e);
             }
@@ -53,34 +47,33 @@ function PotaShell() {
 
                 const resp = await fetch("https://api.pota.app/park/activations/" + park.reference + "?count=all");
                 const parkActivationResp = (await resp.json()) as ParkActivationResponse;
-                console.log(park.name, parkActivationResp);
+                if (park.reference == "DE-0048") {
+                    console.log(park.name, parkActivationResp);
+                    console.log(
+                        parkActivationResp.filter(
+                            (activation) => activation.activeCallsign === call && activation.totalQSOs >= 10
+                        )
+                    );
+                }
                 const newDetails: ParkActivationDetails = {
                     activations: parkActivationResp.filter((activation) => activation.totalQSOs >= 10).length,
                     activatedByOperator:
                         parkActivationResp.filter(
-                            (activation) => activation.activeCallSign === call && activation.totalQSOs >= 10
+                            (activation) => activation.activeCallsign === call && activation.totalQSOs >= 10
                         ).length > 0,
                     lastRefresh: new Date(),
                 };
 
-                setActivationDetails((details) => ({
-                    ...details,
-                    [park.reference]: { ...details[park.reference], ...newDetails },
-                }));
+                setActivationDetails(park.reference, newDetails);
             } catch (e) {
                 console.warn("could not update activation details for park [", park.name, "], reason:", e);
             }
         });
     }, [parks]);
 
-    useEffect(() => {
-        console.log(activationDetails);
-    }, [activationDetails]);
-
-    const findParks = async () => {
-        setQth({ lat: lat, long: long });
-        fetchParks();
-    };
+    // useEffect(() => {
+    //     console.log("activationDetails changed ->", activationDetails);
+    // }, [activationDetails]);
 
     return (
         <AppShell
@@ -104,7 +97,7 @@ function PotaShell() {
             </AppShell.Navbar>
 
             <AppShell.Main style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-                <ParksView call={call} parks={parks} activationDetails={activationDetails} mapCenter={qth} />
+                <ParksView />
             </AppShell.Main>
         </AppShell>
     );

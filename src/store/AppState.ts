@@ -17,7 +17,7 @@ type AppStoreState = {
     parks: Park[];
     setParks: (parks: Park[]) => void;
     activationDetails: ActivationDetails;
-    setActivationDetails: (activationDetails: ActivationDetails) => void;
+    setActivationDetails: (parkReference: string, details: ParkActivationDetails) => void;
 };
 
 export const useAppStore = create<AppStoreState>((set) => ({
@@ -34,6 +34,13 @@ export const useAppStore = create<AppStoreState>((set) => ({
     parks: [] as Park[],
     setParks: (parks: Park[]) => set(() => ({ parks: parks })),
     activationDetails: {} as ActivationDetails,
-    setActivationDetails: (activationDetails: ActivationDetails) =>
-        set(() => ({ activationDetails: activationDetails })),
+    // setActivationDetails: (activationDetails: ActivationDetails) =>
+    //     set((state) => ({ activationDetails: { ...state.activationDetails, ...activationDetails } })),
+    setActivationDetails: (parkReference: string, details: ParkActivationDetails) =>
+        set((state) => ({
+            activationDetails: {
+                ...state.activationDetails,
+                [parkReference]: { ...state.activationDetails[parkReference], ...details },
+            },
+        })),
 }));

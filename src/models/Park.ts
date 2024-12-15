@@ -17,7 +17,7 @@ type Park = {
     name: string;
 };
 
-type ParkActivationResponse = { activeCallSign: string; qsoDate: string; totalQSOs: 45 }[];
+type ParkActivationResponse = { activeCallsign: string; qsoDate: string; totalQSOs: 45 }[];
 type ParkDetailsResponse = { active: number };
 
 type ParksResponse = {
