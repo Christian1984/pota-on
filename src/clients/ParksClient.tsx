@@ -1,4 +1,4 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { throttle } from "../Throttle";
 import { useAppStore } from "../store/AppState";
 
@@ -20,13 +20,13 @@ const calculateDistanceKm = (
     return rEarth * c;
 };
 
-export const useParkQuery = () => {
+export const useParksQuery = () => {
     const lat = useAppStore((state) => state.lat);
     const long = useAppStore((state) => state.long);
     const radiusDeg = useAppStore((state) => state.radius);
 
-    const query = useQuery({
-        queryKey: [lat, long, radiusDeg],
+    return useQuery({
+        queryKey: ["parks", lat, long, radiusDeg],
         enabled: false,
         initialData: [],
         queryFn: async () => {
@@ -65,6 +65,27 @@ export const useParkQuery = () => {
             return parksData;
         },
     });
+};
 
-    return { ...query };
+export const useActivationDetailsQueries = () => {
+    const { data: parks } = useParksQuery();
+
+    return useQueries({
+        queries: parks.map((park) => ({
+            queryKey: ["activation", park.reference],
+            queryFn: async () => {
+                await throttle();
+
+                const resp = await fetch("https://api.pota.app/park/" + park.reference + "?count=all");
+                const parkActivationResp = (await resp.json()) as ParkDetailsResponse;
+                // console.log(park.name, parkActivationResp);
+                const details: ParkActivationDetails = {
+                    active: parkActivationResp.active == 1,
+                    lastRefresh: new Date(),
+                };
+
+                return details;
+            },
+        })),
+    });
 };

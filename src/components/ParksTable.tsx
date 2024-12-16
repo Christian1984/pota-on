@@ -1,9 +1,9 @@
 import { Loader, Table } from "@mantine/core";
-import { useParkQuery } from "../clients/ParksClient";
+import { useParksQuery } from "../clients/ParksClient";
 import { useAppStore } from "../store/AppState";
 
 export const ParksTable = () => {
-    const { data: parks, isLoading: isParksLoading } = useParkQuery();
+    const { data: parks, isLoading: isParksLoading } = useParksQuery();
 
     const call = useAppStore((state) => state.call);
     const activationDetails = useAppStore((state) => state.activationDetails);
@@ -11,10 +11,6 @@ export const ParksTable = () => {
     const rows = parks.map((park) => {
         const details = activationDetails[park.reference];
         const detailsPendingContent = <Loader size={16} />;
-
-        // if (park.reference == "DE-0048") {
-        //     console.log(details);
-        // }
 
         return (
             <Table.Tr key={park.reference}>

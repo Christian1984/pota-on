@@ -1,7 +1,7 @@
 import { Button, Divider, Group, Loader, TextInput } from "@mantine/core";
 import { useAppStore } from "../store/AppState";
 import { useShallow } from "zustand/shallow";
-import { useParkQuery } from "../clients/ParksClient";
+import { useParksQuery } from "../clients/ParksClient";
 
 const HamInput = () => {
     const [call, setCall] = useAppStore(useShallow((state) => [state.call, state.setCall]));
@@ -11,7 +11,7 @@ const HamInput = () => {
 
     const setQth = useAppStore((state) => state.setQth);
 
-    const { isFetching: isParksFetching, refetch: fetchParks } = useParkQuery();
+    const { isFetching: isParksFetching, refetch: fetchParks } = useParksQuery();
 
     return (
         <>

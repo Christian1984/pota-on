@@ -1,11 +1,11 @@
 import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import { useParkQuery } from "../clients/ParksClient";
+import { useParksQuery } from "../clients/ParksClient";
 import { useAppStore } from "../store/AppState";
 
 const ParksMap = () => {
-    const { data: parks, isLoading: isParksLoading } = useParkQuery();
+    const { data: parks, isLoading: isParksLoading } = useParksQuery();
 
     const call = useAppStore((state) => state.call);
     const qth = useAppStore((state) => state.qth);

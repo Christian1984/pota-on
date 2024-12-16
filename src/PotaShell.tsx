@@ -4,7 +4,7 @@ import { useDisclosure } from "@mantine/hooks";
 import { HamInput } from "./components/HamInput";
 import { ParksView } from "./components/ParksView";
 import { throttle } from "./Throttle";
-import { useParkQuery } from "./clients/ParksClient";
+import { useParksQuery } from "./clients/ParksClient";
 import { useAppStore } from "./store/AppState";
 import { useShallow } from "zustand/shallow";
 
@@ -18,7 +18,7 @@ function PotaShell() {
         useShallow((state) => [state.activationDetails, state.setActivationDetails])
     );
 
-    const { data: parks, isLoading: isParksLoading, refetch: fetchParks } = useParkQuery();
+    const { data: parks } = useParksQuery();
 
     useEffect(() => {
         parks.map(async (park) => {
@@ -47,14 +47,7 @@ function PotaShell() {
 
                 const resp = await fetch("https://api.pota.app/park/activations/" + park.reference + "?count=all");
                 const parkActivationResp = (await resp.json()) as ParkActivationResponse;
-                if (park.reference == "DE-0048") {
-                    console.log(park.name, parkActivationResp);
-                    console.log(
-                        parkActivationResp.filter(
-                            (activation) => activation.activeCallsign === call && activation.totalQSOs >= 10
-                        )
-                    );
-                }
+
                 const newDetails: ParkActivationDetails = {
                     activations: parkActivationResp.filter((activation) => activation.totalQSOs >= 10).length,
                     activatedByOperator:
